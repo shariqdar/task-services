@@ -1,14 +1,26 @@
-# Use official Eclipse Temurin JDK 21 image
-FROM eclipse-temurin:21-jdk-alpine
+# -------- STAGE 1: Build the application --------
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 
-# Set working directory
 WORKDIR /app
 
-# Copy the built JAR file
-COPY target/*.jar app.jar
+# Copy Maven config and dependencies first (for caching)
+COPY pom.xml .
+COPY .mvn/ .mvn/
+COPY mvnw .
+RUN ./mvnw dependency:go-offline
 
-# Expose the port your Spring Boot app uses (default is 8080)
+# Now copy source and build
+COPY src/ src/
+RUN ./mvnw package -DskipTests
+
+# -------- STAGE 2: Run the application --------
+FROM eclipse-temurin:21-jdk-alpine
+
+WORKDIR /app
+
+# Copy the jar file from the builder stage
+COPY --from=build /app/target/*.jar app.jar
+
 EXPOSE 8080
 
-# Run the Spring Boot application
 ENTRYPOINT ["java", "-jar", "app.jar"]
