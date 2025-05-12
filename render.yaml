@@ -1,8 +1,7 @@
 services:
   - type: web
     name: spring-batch-csv-to-txt
-    env: java
+    env: docker
     plan: free
-    buildCommand: ./mvnw clean install
-    startCommand: java -jar target/*.jar
     autoDeploy: true
+    dockerfilePath: Dockerfile
