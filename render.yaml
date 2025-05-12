@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: spring-batch-csv-to-txt
+    name: task-services
     env: docker
     plan: free
     autoDeploy: true
